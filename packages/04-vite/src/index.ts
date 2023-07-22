@@ -6,9 +6,67 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
  * Sizes
  */
 const sizes = {
-  width: 800,
-  height: 600
+  width: window.innerWidth,
+  height: window.innerHeight
 }
+
+window.addEventListener('resize', () => {
+  Object.assign(sizes, {
+    width: window.innerWidth,
+    height: window.innerHeight
+  })
+  console.log('resize', sizes)
+  // camera
+  camera.aspect = sizes.width / sizes.height
+  camera.updateProjectionMatrix()
+  // size
+  renderer.setSize(sizes.width, sizes.height)
+  // handle different screen move
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+})
+
+const fullScreen = {
+  get enabled() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement)
+  },
+  request() {
+    let element = document.documentElement
+    if (element.requestFullscreen) {
+      element.requestFullscreen()
+    } else if (element.webkitRequestFullScreen) {
+      element.webkitRequestFullScreen()
+    } else if (element.mozRequestFullScreen) {
+      element.mozRequestFullScreen()
+    } else if (element.msRequestFullscreen) { // IE11
+      element.msRequestFullscreen()
+    } else {
+      window.alert('your browser not support requestFullscreen')
+    }
+  },
+  exit() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+    } else if (document.webkitCancelFullScreen) {
+      document.webkitCancelFullScreen()
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen()
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen()
+    } else {
+      window.alert('your browser not support exitFullscreen')
+    }
+  }
+}
+
+window.addEventListener('dblclick', () => {
+  console.log('dbclick', document.fullscreenElement)
+  if (fullScreen.enabled) {
+    fullScreen.exit()
+  } else {
+    fullScreen.request()
+  }
+})
 
 // Cursor
 // const cursor = {x: 0, y: 0}
@@ -60,10 +118,10 @@ scene.add(camera)
 camera.lookAt(group.position)
 // camera.lookAt(new THREE.Vector3(1, 0, 0))
 
-const helper = new THREE.CameraHelper(camera);
-const colorBlue = new THREE.Color('blue')
-helper.setColors(colorBlue, colorBlue, colorBlue, colorBlue, colorBlue)
-scene.add(helper);
+// const helper = new THREE.CameraHelper(camera);
+// const colorBlue = new THREE.Color('blue')
+// helper.setColors(colorBlue, colorBlue, colorBlue, colorBlue, colorBlue)
+// scene.add(helper);
 /**
  * Renderer
  */
@@ -72,6 +130,7 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.render(scene, camera)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 const clock = new THREE.Clock()
 
