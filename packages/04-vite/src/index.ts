@@ -10,63 +10,64 @@ const sizes = {
   height: window.innerHeight
 }
 
-window.addEventListener('resize', () => {
-  Object.assign(sizes, {
-    width: window.innerWidth,
-    height: window.innerHeight
+function registerListener() {
+  window.addEventListener('resize', () => {
+    Object.assign(sizes, {
+      width: window.innerWidth,
+      height: window.innerHeight
+    })
+    console.log('resize', sizes)
+    // camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+    // size
+    renderer.setSize(sizes.width, sizes.height)
+    // handle different screen move
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   })
-  console.log('resize', sizes)
-  // camera
-  camera.aspect = sizes.width / sizes.height
-  camera.updateProjectionMatrix()
-  // size
-  renderer.setSize(sizes.width, sizes.height)
-  // handle different screen move
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-})
-
-const fullScreen = {
-  get enabled() {
-    return !!(document.fullscreenElement || document.webkitFullscreenElement)
-  },
-  request() {
-    let element = document.documentElement
-    if (element.requestFullscreen) {
-      element.requestFullscreen()
-    } else if (element.webkitRequestFullScreen) {
-      element.webkitRequestFullScreen()
-    } else if (element.mozRequestFullScreen) {
-      element.mozRequestFullScreen()
-    } else if (element.msRequestFullscreen) { // IE11
-      element.msRequestFullscreen()
-    } else {
-      window.alert('your browser not support requestFullscreen')
-    }
-  },
-  exit() {
-    if (document.exitFullscreen) {
-      document.exitFullscreen()
-    } else if (document.webkitCancelFullScreen) {
-      document.webkitCancelFullScreen()
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen()
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen()
-    } else {
-      window.alert('your browser not support exitFullscreen')
+  const fullScreen = {
+    get enabled() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement)
+    },
+    request() {
+      let element = document.documentElement
+      if (element.requestFullscreen) {
+        element.requestFullscreen()
+      } else if (element.webkitRequestFullScreen) {
+        element.webkitRequestFullScreen()
+      } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen()
+      } else if (element.msRequestFullscreen) { // IE11
+        element.msRequestFullscreen()
+      } else {
+        window.alert('your browser not support requestFullscreen')
+      }
+    },
+    exit() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      } else if (document.webkitCancelFullScreen) {
+        document.webkitCancelFullScreen()
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen()
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen()
+      } else {
+        window.alert('your browser not support exitFullscreen')
+      }
     }
   }
-}
 
-window.addEventListener('dblclick', () => {
-  console.log('dbclick', document.fullscreenElement)
-  if (fullScreen.enabled) {
-    fullScreen.exit()
-  } else {
-    fullScreen.request()
-  }
-})
+  window.addEventListener('dblclick', () => {
+    console.log('dbclick', document.fullscreenElement)
+    if (fullScreen.enabled) {
+      fullScreen.exit()
+    } else {
+      fullScreen.request()
+    }
+  })
+
 
 // Cursor
 // const cursor = {x: 0, y: 0}
@@ -75,6 +76,8 @@ window.addEventListener('dblclick', () => {
 //   cursor.y = event.clientY / sizes.height - 0.5
 //   console.log(cursor)
 // })
+}
+registerListener()
 
 // Canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl')
@@ -87,22 +90,25 @@ const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
 // group
-const group = new THREE.Group()
-scene.add(group)
+function addGroup() {
+  const group = new THREE.Group()
+  scene.add(group)
 
-const cube1 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({color: 0xff0000})
-)
-group.add(cube1)
+  const cube1 = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({color: 0xff0000})
+  )
+  group.add(cube1)
 
-const cube2 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({color: 0x00ff00})
-)
-cube2.position.x = -2
-group.add(cube2)
-
+  const cube2 = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({color: 0x00ff00})
+  )
+  cube2.position.x = -2
+  group.add(cube2)
+  return group
+}
+const group = addGroup()
 /**
  * Camera
  */
@@ -115,13 +121,13 @@ const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.001
 camera.position.set(0, 0, 4)
 
 scene.add(camera)
-camera.lookAt(group.position)
 // camera.lookAt(new THREE.Vector3(1, 0, 0))
 
 // const helper = new THREE.CameraHelper(camera);
 // const colorBlue = new THREE.Color('blue')
 // helper.setColors(colorBlue, colorBlue, colorBlue, colorBlue, colorBlue)
 // scene.add(helper);
+
 /**
  * Renderer
  */
